@@ -90,3 +90,35 @@ jobs:
           name: braid-android
           path: braid/android/out/*.apk
           if-no-files-found: error
+
+  # Publishes the latest build as a public pre-release, so the files download without a GitHub login
+  # (Actions artifacts always need one). Links stay the same for every build:
+  #   https://github.com/<repo>/releases/download/braid-latest/braid-android.apk
+  publish:
+    needs: [go-tests, windows, android]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Package
+        run: |
+          cd out
+          ls -la
+          zip -j braid-android.zip braid-android.apk
+          for f in braid-setup-*.exe; do cp "$f" braid-setup.exe; done
+          sha256sum braid-android.apk braid-android.zip braid-setup.exe braid-*-portable.zip > SHA256SUMS
+      - name: Replace the braid-latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete braid-latest --yes --cleanup-tag || true
+          gh release create braid-latest --prerelease --target "$GITHUB_SHA" \
+            --title "Braid (latest build)" \
+            --notes "آخرین بیلد Braid. اندروید: braid-android.apk را روی گوشی نصب کنید. ویندوز: braid-setup.exe. Latest Braid build: install braid-android.apk on Android, braid-setup.exe on Windows." \
+            out/braid-android.apk out/braid-android.zip out/braid-setup.exe out/braid-*-portable.zip out/SHA256SUMS
