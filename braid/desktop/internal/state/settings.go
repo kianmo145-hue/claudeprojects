@@ -8,7 +8,8 @@ import (
 
 // Settings are the tray's own preferences (the adapters' speed caps live in limits.json).
 type Settings struct {
-	Lang string `json:"lang,omitempty"` // "fa", "en" or "" for the system language
+	Lang     string `json:"lang,omitempty"`     // "fa", "en" or "" for the system language
+	Welcomed bool   `json:"welcomed,omitempty"` // the first-start message was shown
 }
 
 func settingsPath(dir string) string { return filepath.Join(dir, "settings.json") }

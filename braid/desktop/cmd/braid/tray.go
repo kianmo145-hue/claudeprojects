@@ -39,8 +39,13 @@ func cmdTray(args []string) {
 		fmt.Println("Approve the admin prompt. Look for the braid icon in the system tray (^ overflow arrow) or menu bar.")
 		return
 	}
+	setLang(c.stateDir)
 	if !platform.SingleInstance() {
+		// The windowless build has no console: say it in a box, or a second launch looks like nothing.
 		fmt.Println("braid is already running.")
+		if !platform.HasConsole() {
+			platform.Info(i18n.T("running.title"), i18n.T("running.already"), i18n.RTL())
+		}
 		return
 	}
 	if c.logFile == "" {
@@ -56,11 +61,6 @@ func cmdTray(args []string) {
 		die(err)
 	}
 
-	if lang := state.LoadSettings(c.stateDir).Lang; lang != "" {
-		i18n.Set(i18n.Lang(lang))
-	} else {
-		i18n.Set(i18n.Lang(platform.UILanguage()))
-	}
 	if !*noBoost {
 		c.boost = booster.New(c.stateDir)
 		c.boost.Start()
@@ -87,6 +87,7 @@ func cmdTray(args []string) {
 		logx.Printf("warning: taskbar not found after 3 minutes, trying anyway\n")
 	}
 	ready := make(chan struct{})
+	go welcome(c.stateDir, ready)
 	go func() { // safety net: if the icon still can't be created, exit so autostart can retry
 		select {
 		case <-ready:
@@ -104,4 +105,28 @@ func cmdTray(args []string) {
 		os.Exit(0)
 	}()
 	tray.Run(t, sched, bal, c.boost, c.stateDir, version, !*startOff, *autoPause, ready)
+}
+
+// setLang picks the saved language, else the system's.
+func setLang(dir string) {
+	if lang := state.LoadSettings(dir).Lang; lang != "" {
+		i18n.Set(i18n.Lang(lang))
+	} else {
+		i18n.Set(i18n.Lang(platform.UILanguage()))
+	}
+}
+
+// welcome tells a first-time user where the app went: it has no window, and Windows 11 hides new
+// tray icons behind the ^ arrow, so without this it looks like nothing started.
+func welcome(dir string, ready <-chan struct{}) {
+	s := state.LoadSettings(dir)
+	if s.Welcomed {
+		return
+	}
+	<-ready
+	s.Welcomed = true
+	if err := state.SaveSettings(dir, s); err != nil {
+		logx.Printf("warning: saving settings: %v\n", err)
+	}
+	platform.Info(i18n.T("running.title"), i18n.T("running.welcome"), i18n.RTL())
 }

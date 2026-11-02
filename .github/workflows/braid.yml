@@ -122,3 +122,16 @@ jobs:
             --title "Braid (latest build)" \
             --notes "آخرین بیلد Braid. اندروید: braid-android.apk را روی گوشی نصب کنید. ویندوز: braid-setup.exe. Latest Braid build: install braid-android.apk on Android, braid-setup.exe on Windows." \
             out/braid-android.apk out/braid-android.zip out/braid-setup.exe out/braid-*-portable.zip out/SHA256SUMS
+      # The same files on a branch, so they can be fetched with plain git (some networks filter the
+      # release download host). One commit, overwritten by every build.
+      - name: Update the braid-builds branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir builds
+          cp out/braid-android.apk out/braid-setup.exe out/braid-*-portable.zip out/SHA256SUMS builds/
+          cd builds
+          git init -q -b braid-builds
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" add -A
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -q -m "Braid build ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" braid-builds

@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -285,7 +286,7 @@ func main() {
 func die(err error) {
 	fmt.Fprintln(os.Stderr, "error:", err)
 	if !platform.HasConsole() {
-		platform.ShowError(err.Error())
+		platform.ShowError(err.Error() + "\n\nLog: " + filepath.Join(state.DefaultDir(), "braid.log"))
 	}
 	os.Exit(1)
 }
