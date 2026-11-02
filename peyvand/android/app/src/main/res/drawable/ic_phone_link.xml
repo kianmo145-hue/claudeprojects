@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A phone sending data to the side: booster mode. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:autoMirrored="true">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,1H4C2.9,1 2,1.9 2,3v18c0,1.1 0.9,2 2,2h8c1.1,0 2,-0.9 2,-2V3c0,-1.1 -0.9,-2 -2,-2zM12,19H4V5h8v14z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M16.5,9.5a4,4 0,0 1,0 5M19.5,7a7.5,7.5 0,0 1,0 10" />
+</vector>

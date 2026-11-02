@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Peyvand</string>
+
+    <!-- tabs -->
+    <string name="tab_merge">Merge</string>
+    <string name="tab_booster">Booster</string>
+    <string name="tab_settings">Settings</string>
+    <string name="turn_on">Turn on</string>
+    <string name="turn_off">Turn off</string>
+
+    <!-- merge -->
+    <string name="merge_title">Wi-Fi + mobile data</string>
+    <string name="merge_off">Off · tap to use both at once</string>
+    <string name="connecting">Connecting…</string>
+    <string name="waiting_short">Waiting for networks</string>
+    <string name="using_one">Using 1 network</string>
+    <string name="merging_n">Merging %1$d networks</string>
+    <string name="combined">combined</string>
+    <string name="last_minute">Last minute</string>
+    <string name="waiting_networks">Waiting for Wi-Fi or mobile data. Make sure both are switched on.</string>
+    <string name="open_flows">%1$d open</string>
+    <string name="percent">%1$d%%</string>
+    <string name="download">↓ Download</string>
+    <string name="upload">↑ Upload</string>
+    <string name="moved">Moved</string>
+    <string name="intro_title">Use both at once</string>
+    <string name="intro_body">Each new connection goes out over Wi-Fi or mobile data, balanced by how fast each one is. Downloads and pages that open many connections get faster; a single connection stays on one network. Mobile data stays on while this is active, so keep an eye on your data plan.</string>
+    <string name="net_wifi">Wi-Fi</string>
+    <string name="net_cell">Mobile data</string>
+    <string name="status_up">connected</string>
+    <string name="status_checking">checking</string>
+    <string name="status_down">no internet</string>
+
+    <!-- booster -->
+    <string name="boost_title">Booster for your computer</string>
+    <string name="boost_off">Off · share this phone\'s mobile data with your computer over Wi-Fi</string>
+    <string name="boost_need_wifi">Connect to the same Wi-Fi as your computer</string>
+    <string name="boost_need_cell">Turn on mobile data</string>
+    <string name="boost_ready">Ready · waiting for your computer</string>
+    <string name="boost_sharing_n">Boosting %1$d computer(s)</string>
+    <string name="boost_to_computers">to your computers</string>
+    <string name="check_wifi">Wi-Fi connected</string>
+    <string name="check_wifi_ip">Wi-Fi connected · %1$s</string>
+    <string name="check_cell">Mobile data on</string>
+    <string name="boost_used">Data used</string>
+    <string name="open_connections">Open connections</string>
+    <string name="computers">Computers</string>
+    <string name="add_another">To add another computer, open Peyvand\'s menu on it: Phones › Pair with this phone.</string>
+    <string name="boost_data_note">Your computer\'s downloads use this phone\'s mobile data while the booster is on. Your computer keeps its own Wi-Fi too: Peyvand on the computer adds the two together.</string>
+    <string name="pc_active">Active · %1$s · %2$d connections</string>
+    <string name="pc_used">Used %1$s this session</string>
+    <string name="pc_paired">Paired</string>
+    <string name="forget">Forget</string>
+    <string name="forget_title">Forget %1$s?</string>
+    <string name="forget_body">It will need to pair again to use this phone.</string>
+    <string name="cancel">Cancel</string>
+    <string name="howto_title">Connect your computer in four steps</string>
+    <string name="howto_1">Install Peyvand on the Windows computer and connect it to the same Wi-Fi as this phone.</string>
+    <string name="howto_2">Turn on the booster here (the button above) and keep mobile data on.</string>
+    <string name="howto_3">On the computer, click the Peyvand icon next to the clock: Phones › your phone › Pair with this phone.</string>
+    <string name="howto_4">Check that both screens show the same six digits and tap Approve here.</string>
+
+    <!-- pairing -->
+    <string name="pair_title">Pair with %1$s?</string>
+    <string name="pair_compare">Make sure your computer shows the same code:</string>
+    <string name="pair_hint">Only approve a computer you own. You can forget it later.</string>
+    <string name="pair_approve">Approve</string>
+    <string name="pair_decline">Decline</string>
+    <string name="pair_channel">Pairing requests</string>
+    <string name="pair_notif_text">Code %1$s · check that your computer shows the same code.</string>
+
+    <!-- notifications -->
+    <string name="channel_name">Merge status</string>
+    <string name="notif_title">Merging your connections</string>
+    <string name="notif_waiting">Waiting for networks</string>
+    <string name="boost_channel">Booster status</string>
+    <string name="boost_notif_title">Booster is on</string>
+    <string name="boost_waiting">Starting…</string>
+    <string name="boost_client_line">%1$s: %2$s</string>
+    <string name="stop">Stop</string>
+    <string name="vpn_denied">Peyvand needs VPN permission to route traffic.</string>
+
+    <!-- settings -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="theme">Appearance</string>
+    <string name="follow_system">Same as the system</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="even_split">Split evenly</string>
+    <string name="even_split_hint">Give both networks the same share of new connections instead of following their speed. Only helps when Wi-Fi and mobile data are about as fast as each other.</string>
+    <string name="about">About</string>
+    <string name="about_body">Peyvand merges your connections: Wi-Fi and mobile data on this phone, and this phone\'s mobile data with your computer\'s Wi-Fi. Based on net-merge by Rohit Mahto and its Android port (MIT). Font: Vazirmatn (SIL OFL).</string>
+
+    <!-- units -->
+    <string name="unit_mbps">%1$s Mb/s</string>
+    <string name="unit_kb">%1$s kB</string>
+    <string name="unit_mb">%1$s MB</string>
+    <string name="unit_gb">%1$s GB</string>
+</resources>

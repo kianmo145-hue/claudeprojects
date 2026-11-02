@@ -1,0 +1,92 @@
+# Builds and tests Peyvand: the shared booster module, the Windows tray app (exe, installer,
+# portable zip) and the Android APK. Download the results from the run's "Artifacts".
+name: Peyvand
+
+on:
+  push:
+    paths: ['peyvand/**', '.github/workflows/peyvand.yml']
+  pull_request:
+    paths: ['peyvand/**', '.github/workflows/peyvand.yml']
+  workflow_dispatch:
+
+jobs:
+  go-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: peyvand/desktop/go.mod
+          cache-dependency-path: |
+            peyvand/desktop/go.sum
+            peyvand/android/golib/go.sum
+      - name: Booster protocol
+        working-directory: peyvand/boost
+        run: go vet ./... && go test -race ./...
+      - name: Desktop (Linux build, Windows cross-build)
+        working-directory: peyvand/desktop
+        run: |
+          go vet ./...
+          GOOS=windows go vet ./...
+          go test ./...
+      - name: Android engine
+        working-directory: peyvand/android/golib
+        run: go vet ./... && go test -race ./...
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: peyvand/desktop/go.mod
+          cache-dependency-path: peyvand/desktop/go.sum
+      - run: choco install innosetup --no-progress -y
+      - name: Build exe, installer and portable zip
+        working-directory: peyvand/desktop
+        shell: pwsh
+        run: scripts/build.ps1 -Version 0.1.0 -RepoUrl "https://github.com/${{ github.repository }}"
+      - name: Smoke test (virtual adapter, routes, probes)
+        working-directory: peyvand/desktop
+        shell: pwsh
+        run: scripts/windows-smoke.ps1 dist\peyvand.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peyvand-windows
+          path: |
+            peyvand/desktop/dist/peyvand-setup-*.exe
+            peyvand/desktop/dist/peyvand-*-portable.zip
+          if-no-files-found: error
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: peyvand/android/golib/go.mod
+          cache-dependency-path: peyvand/android/golib/go.sum
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build Go engine (gomobile)
+        working-directory: peyvand/android
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+          ./scripts/build-go.sh
+      - name: Build APKs
+        working-directory: peyvand/android
+        run: ./gradlew --no-daemon assembleDebug assembleRelease
+      - name: Collect APKs
+        working-directory: peyvand/android
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/debug/app-debug.apk out/peyvand-android-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk out/peyvand-android.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peyvand-android
+          path: peyvand/android/out/*.apk
+          if-no-files-found: error

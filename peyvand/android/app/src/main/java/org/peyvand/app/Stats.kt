@@ -1,0 +1,43 @@
+package org.peyvand.app
+
+import org.json.JSONArray
+
+/** Parsed form of the engine's per-network stats (peyvand.Peyvand.stats()). */
+data class Stats(
+    val name: String,
+    val state: String,
+    val state6: String,
+    val active: Long,
+    val total: Long,
+    val failed: Long,
+    val bytesIn: Long,
+    val bytesOut: Long,
+    val rateIn: Double,
+    val rateOut: Double,
+    val weight: Double,
+    val present: Boolean,
+) {
+    /** "up", "checking" or "no internet", folding IPv4 and IPv6 into one word. */
+    val status: String
+        get() = when {
+            state == "up" || state6 == "up" -> "up"
+            state == "checking" || state6 == "checking" -> "checking"
+            else -> "no internet"
+        }
+
+    companion object {
+        fun parse(json: String): List<Stats> {
+            val arr = runCatching { JSONArray(json) }.getOrNull() ?: return emptyList()
+            return (0 until arr.length()).map { i ->
+                val o = arr.getJSONObject(i)
+                Stats(
+                    o.optString("name"), o.optString("state"), o.optString("state6"),
+                    o.optLong("active"), o.optLong("total"), o.optLong("failed"),
+                    o.optLong("bytesIn"), o.optLong("bytesOut"),
+                    o.optDouble("rateIn", 0.0), o.optDouble("rateOut", 0.0),
+                    o.optDouble("weight", 1.0), o.optBoolean("present"),
+                )
+            }
+        }
+    }
+}
