@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">پایدار</string>
+    <string name="notif_channel">وضعیت اتصال</string>
+    <string name="notif_connecting">در حال اتصال…</string>
+    <string name="notif_connected">متصل: %1$s</string>
+    <string name="notif_offline">در انتظار اینترنت…</string>
+    <string name="notif_disconnect">قطع اتصال</string>
+    <string name="vpn_denied">برای اتصال، اجازهٔ VPN لازم است.</string>
+</resources>

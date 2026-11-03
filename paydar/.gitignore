@@ -1,0 +1,8 @@
+/.bin/
+/dist/
+/cmd/paydar/rsrc_windows_*.syso
+/android/app/libs/
+/android/.gradle/
+/android/app/build/
+/android/build/
+/android/local.properties

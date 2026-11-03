@@ -1,0 +1,144 @@
+# Builds and tests Paydar: the Go core, the Windows app (exe, installer, portable zip) and the
+# Android APK, then publishes them as the paydar-latest release and on the paydar-builds branch.
+name: Paydar
+
+on:
+  push:
+    paths: ['paydar/**', '.github/workflows/paydar.yml']
+  pull_request:
+    paths: ['paydar/**', '.github/workflows/paydar.yml']
+  workflow_dispatch:
+
+env:
+  TAGS: with_gvisor,with_quic,with_utls,badlinkname,tfogo_checklinkname0
+  VERSION: 0.1.0
+
+jobs:
+  go-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: paydar/go.mod
+          cache-dependency-path: paydar/go.sum
+      - name: Vet (Linux, Windows, Android)
+        working-directory: paydar
+        run: |
+          go vet -tags "$TAGS" ./...
+          GOOS=windows go vet -tags "$TAGS" ./...
+          GOOS=android GOARCH=arm64 go vet -tags "$TAGS" ./mobile/
+      - name: Test (includes a real sing-box failover)
+        working-directory: paydar
+        run: go test -race -tags "$TAGS" -ldflags=-checklinkname=0 ./...
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: paydar/go.mod
+          cache-dependency-path: paydar/go.sum
+      - run: choco install innosetup --no-progress -y
+      - name: Build exe, installer and portable zip
+        working-directory: paydar
+        shell: pwsh
+        run: scripts/build-windows.ps1 -Version $env:VERSION -RepoUrl "https://github.com/${{ github.repository }}"
+      - name: Smoke test (starts, serves the UI, tests servers)
+        working-directory: paydar
+        shell: pwsh
+        run: scripts/windows-smoke.ps1 dist\paydar.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paydar-windows
+          path: |
+            paydar/dist/paydar-setup-*.exe
+            paydar/dist/paydar-*-portable.zip
+          if-no-files-found: error
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: paydar/go.mod
+          cache-dependency-path: paydar/go.sum
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build Go core (gomobile)
+        working-directory: paydar/android
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+          PAYDAR_VERSION=$VERSION ./scripts/build-go.sh
+      - name: Release key
+        env:
+          KEYSTORE_B64: ${{ secrets.PAYDAR_ANDROID_KEYSTORE }}
+        if: env.KEYSTORE_B64 != ''
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/paydar.jks"
+          echo "ANDROID_KEYSTORE=$RUNNER_TEMP/paydar.jks" >> "$GITHUB_ENV"
+      - name: Build APKs
+        working-directory: paydar/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.PAYDAR_ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.PAYDAR_ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.PAYDAR_ANDROID_KEY_PASSWORD }}
+        run: ./gradlew --no-daemon assembleDebug assembleRelease
+      - name: Collect APKs
+        working-directory: paydar/android
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/debug/app-debug.apk out/paydar-android-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk out/paydar-android.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paydar-android
+          path: paydar/android/out/*.apk
+          if-no-files-found: error
+
+  # Public pre-release, so files download without a GitHub login. Fixed links:
+  #   https://github.com/<repo>/releases/download/paydar-latest/paydar-android.apk
+  publish:
+    needs: [go-tests, windows, android]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Package
+        run: |
+          cd out
+          ls -la
+          for f in paydar-setup-*.exe; do cp "$f" paydar-setup.exe; done
+          sha256sum paydar-android.apk paydar-setup.exe paydar-*-portable.zip > SHA256SUMS
+      - name: Replace the paydar-latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete paydar-latest --yes --cleanup-tag || true
+          gh release create paydar-latest --prerelease --target "$GITHUB_SHA" \
+            --title "Paydar (latest build)" \
+            --notes "آخرین بیلد پایدار. اندروید: paydar-android.apk — ویندوز: paydar-setup.exe. Latest Paydar build: paydar-android.apk for Android, paydar-setup.exe for Windows." \
+            out/paydar-android.apk out/paydar-setup.exe out/paydar-*-portable.zip out/SHA256SUMS
+      # The same files on a branch, for networks that filter the release download host.
+      - name: Update the paydar-builds branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir builds
+          cp out/paydar-android.apk out/paydar-setup.exe out/paydar-*-portable.zip out/SHA256SUMS builds/
+          cd builds
+          git init -q -b paydar-builds
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" add -A
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -q -m "Paydar build ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" paydar-builds

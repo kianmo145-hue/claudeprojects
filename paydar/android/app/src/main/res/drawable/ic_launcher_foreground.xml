@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paydar mark: a shield with a check, as in the desktop and web icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <group android:translateX="22" android:translateY="22">
+        <path android:pathData="M32,10 L50,17 L50,31 C50,42.5 42.4,51.6 32,54 C21.6,51.6 14,42.5 14,31 L14,17 Z">
+            <aapt:attr xmlns:aapt="http://schemas.android.com/aapt" name="android:fillColor">
+                <gradient android:type="linear" android:startX="14" android:startY="10" android:endX="50" android:endY="54">
+                    <item android:offset="0" android:color="#FF2EE6A6" />
+                    <item android:offset="1" android:color="#FF1C8CFF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path android:fillColor="#00000000" android:strokeColor="#FF0F1720" android:strokeWidth="5"
+            android:strokeLineCap="round" android:strokeLineJoin="round"
+            android:pathData="M23,32 L29.5,38.5 L42,26" />
+    </group>
+</vector>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Paydar</title>
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand"><img src="icon.svg" alt=""><span data-t="appName"></span></div>
+    <button class="ghost" id="langBtn" type="button">EN</button>
+  </header>
+
+  <section class="hero" id="hero">
+    <button class="power" id="power" type="button" aria-label="connect">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9" /><path d="M6.3 6.8a8 8 0 1 0 11.4 0" /></svg>
+    </button>
+    <div class="state" id="stateText"></div>
+    <div class="server" id="serverText"></div>
+    <div class="chips" id="chips"></div>
+    <div class="banner hidden" id="banner"></div>
+  </section>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="servers" class="on" type="button" data-t="tabServers"></button>
+    <button data-tab="subs" type="button" data-t="tabSubs"></button>
+    <button data-tab="activity" type="button" data-t="tabActivity"></button>
+    <button data-tab="settings" type="button" data-t="tabSettings"></button>
+  </nav>
+
+  <main>
+    <section class="pane" id="pane-servers">
+      <div class="toolbar">
+        <button class="primary" id="addBtn" type="button" data-t="add"></button>
+        <button id="pasteBtn" type="button" data-t="paste"></button>
+        <button id="testBtn" type="button" data-t="testAll"></button>
+        <button id="autoPickBtn" type="button" class="hidden" data-t="autoPick"></button>
+        <button id="deadBtn" type="button" data-t="removeDead"></button>
+      </div>
+      <div class="list" id="servers"></div>
+      <div class="empty hidden" id="serversEmpty" data-t="emptyServers"></div>
+    </section>
+
+    <section class="pane hidden" id="pane-subs">
+      <form class="row" id="subForm">
+        <input id="subUrl" type="url" required dir="ltr" placeholder="https://…">
+        <button class="primary" type="submit" data-t="addSub"></button>
+      </form>
+      <div class="toolbar"><button id="subsRefresh" type="button" data-t="refreshAll"></button></div>
+      <div class="list" id="subs"></div>
+      <div class="empty hidden" id="subsEmpty" data-t="emptySubs"></div>
+    </section>
+
+    <section class="pane hidden" id="pane-activity">
+      <h3 data-t="switches"></h3>
+      <div class="events" id="events"></div>
+      <h3 data-t="logs"></h3>
+      <pre class="logs" id="logs" dir="ltr"></pre>
+    </section>
+
+    <section class="pane hidden" id="pane-settings">
+      <form id="settingsForm" class="settings">
+        <label class="switch"><input type="checkbox" name="autoSwitch"><span><b data-t="sAuto"></b><small data-t="sAutoHelp"></small></span></label>
+        <label class="switch"><input type="checkbox" name="preferFaster"><span><b data-t="sFaster"></b><small data-t="sFasterHelp"></small></span></label>
+        <label class="switch"><input type="checkbox" name="bypassIran"><span><b data-t="sIran"></b><small data-t="sIranHelp"></small></span></label>
+        <label class="switch"><input type="checkbox" name="ipv6"><span><b data-t="sIPv6"></b><small data-t="sIPv6Help"></small></span></label>
+        <label class="switch desktop-only"><input type="checkbox" name="autoConnect"><span><b data-t="sAutoConnect"></b><small data-t="sAutoConnectHelp"></small></span></label>
+        <label class="field desktop-only"><b data-t="sMode"></b>
+          <select name="mode"><option value="tun" data-t="modeTun"></option><option value="proxy" data-t="modeProxy"></option></select>
+        </label>
+        <label class="field"><b data-t="sDNS"></b><input name="remoteDns" dir="ltr"></label>
+        <label class="field"><b data-t="sPort"></b><input name="mixedPort" type="number" min="1024" max="65535" dir="ltr"></label>
+        <label class="field"><b data-t="sSubHours"></b><input name="subRefreshHours" type="number" min="0" max="168" dir="ltr"></label>
+        <div class="toolbar"><button class="primary" type="submit" data-t="save"></button><button type="button" id="quitBtn" class="danger desktop-only" data-t="quit"></button></div>
+        <p class="muted" id="version"></p>
+      </form>
+    </section>
+  </main>
+</div>
+
+<dialog id="addDialog">
+  <form method="dialog" id="addForm">
+    <h3 data-t="addTitle"></h3>
+    <p class="muted" data-t="addHelp"></p>
+    <textarea id="addText" rows="7" dir="ltr" placeholder="vless://…  vmess://…  trojan://…  ss://…  hy2://…  tuic://…  https://sub…"></textarea>
+    <div class="toolbar"><button class="primary" type="button" id="addOk" data-t="add"></button><button type="button" id="addCancel" data-t="cancel"></button></div>
+  </form>
+</dialog>
+
+<div class="toast hidden" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
